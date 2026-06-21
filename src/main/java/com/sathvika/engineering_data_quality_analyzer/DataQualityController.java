@@ -147,6 +147,11 @@ public class DataQualityController {
     {
         return dataQualityService.getReportsByPageSortedByQualityScoreDesc(page,size);
     }
-
+    //dynamic sorting(ie asking from user which filed to sort)
+    @GetMapping("/reports/sort/{field}")
+    public List<DataQualityReport> getReportsSortedByField(@PathVariable String field)
+    {
+        return dataQualityService.getReportsSortedByField(field);
+    }
 }
 

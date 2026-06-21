@@ -273,6 +273,10 @@ public class DataQualityService {
         return repository.findAll(PageRequest.of(page,size,Sort.by("qualityScore").descending()));
     }
     //dynamic sorting
+    public List<DataQualityReport> getReportsSortedByField(String field)
+    {
+        return repository.findAll(Sort.by("field"));
+    }
 
 
 
