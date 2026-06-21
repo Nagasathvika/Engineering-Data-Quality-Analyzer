@@ -153,5 +153,12 @@ public class DataQualityController {
     {
         return dataQualityService.getReportsSortedByField(field);
     }
+
+    @GetMapping("/reports/sort/{field}/{direction}")
+    public List<DataQualityReport> getReportsSortedByFiledAndDirection
+            (@PathVariable String field,@PathVariable String direction)
+    {
+        return dataQualityService.getReportsSortedByFieldAndDirection(field,direction);
+    }
 }
 

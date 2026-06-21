@@ -275,7 +275,16 @@ public class DataQualityService {
     //dynamic sorting
     public List<DataQualityReport> getReportsSortedByField(String field)
     {
-        return repository.findAll(Sort.by("field"));
+        return repository.findAll(Sort.by(field));
+    }
+
+    public List<DataQualityReport> getReportsSortedByFieldAndDirection(String field,String direction)
+    {
+        if(direction.equalsIgnoreCase("desc"))
+        {
+            return repository.findAll(Sort.by(field).descending());
+        }
+        return repository.findAll(Sort.by(field).ascending());
     }
 
 
