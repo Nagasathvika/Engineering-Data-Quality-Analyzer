@@ -160,5 +160,12 @@ public class DataQualityController {
     {
         return dataQualityService.getReportsSortedByFieldAndDirection(field,direction);
     }
+
+    @GetMapping("/reports/page/{page}/{size}/{field}/{direction}")
+    public Page<DataQualityReport> getReportsByPageAndSort(@PathVariable int page,@PathVariable int size,
+                                                           @PathVariable String field, @PathVariable String direction)
+    {
+        return dataQualityService.getReportsByPageAndSort(page, size, field, direction);
+    }
 }
 

@@ -277,7 +277,7 @@ public class DataQualityService {
     {
         return repository.findAll(Sort.by(field));
     }
-
+    //dynamic sort for field and direction
     public List<DataQualityReport> getReportsSortedByFieldAndDirection(String field,String direction)
     {
         if(direction.equalsIgnoreCase("desc"))
@@ -286,6 +286,37 @@ public class DataQualityService {
         }
         return repository.findAll(Sort.by(field).ascending());
     }
+    //dynamic pagination and dynamic sorting
+    public Page<DataQualityReport>  getReportsSortedByPageAndSort(int page,int size,String field,String direction)
+    {
+        Sort sort;
+        if(direction.equalsIgnoreCase("desc"))
+        {
+            sort=Sort.by(field).descending();
+        }
+        else
+        {
+           sort=Sort.by(field).ascending();
+        }
+
+        return repository.findAll(PageRequest.of(page,size,sort));
+    }
+    public Page<DataQualityReport> getReportsByPageAndSort(int page,int size,String field,String direction)
+    {
+        Sort sort;
+
+        if(direction.equalsIgnoreCase("desc"))
+        {
+            sort=Sort.by(field).descending();
+        }
+        else
+        {
+            sort=Sort.by(field).ascending();
+        }
+        return repository.findAll(PageRequest.of(page,size,sort));
+    }
+
+
 
 
 
