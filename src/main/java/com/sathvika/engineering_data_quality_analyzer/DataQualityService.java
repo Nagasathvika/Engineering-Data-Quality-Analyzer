@@ -316,6 +316,59 @@ public class DataQualityService {
         return repository.findAll(PageRequest.of(page,size,sort));
     }
 
+    public List<DataQualityReport> getReportsSortedByTwoFields(String field1,String direction1,
+                                                               String field2 ,String direction2)
+    {
+        Sort sort1;
+        if(direction1.equalsIgnoreCase("desc"))
+        {
+            sort1=Sort.by(field1).descending();
+        }
+        else
+        {
+            sort1=Sort.by(field1).ascending();
+        }
+
+        Sort sort2;
+
+        if(direction2.equalsIgnoreCase("desc"))
+        {
+            sort2=Sort.by(field2).descending();
+        }
+        else
+        {
+            sort2=Sort.by(field2).ascending();
+        }
+        return repository.findAll(sort1.and(sort2));
+
+    }
+    public Page<DataQualityReport> getReportsByPageAndTwoFieldSort(int page,int size,String field1,String direction1,
+                                                                   String field2 ,String direction2)
+    {
+        Sort sort1;
+        if(direction1.equalsIgnoreCase("desc"))
+        {
+            sort1=Sort.by(field1).descending();
+        }
+        else
+        {
+            sort1=Sort.by(field1).ascending();
+        }
+
+        Sort sort2;
+
+        if(direction2.equalsIgnoreCase("desc"))
+        {
+            sort2=Sort.by(field2).descending();
+        }
+        else
+        {
+            sort2=Sort.by(field2).ascending();
+        }
+        return repository.findAll(PageRequest.of(page,size,sort1.and(sort2)));
+
+    }
+
 
 
 

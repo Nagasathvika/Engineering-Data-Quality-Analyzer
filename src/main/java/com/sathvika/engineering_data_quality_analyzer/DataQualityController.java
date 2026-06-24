@@ -167,5 +167,21 @@ public class DataQualityController {
     {
         return dataQualityService.getReportsByPageAndSort(page, size, field, direction);
     }
+
+    @GetMapping("/reports/sort/{field1}/{direction1}/{field2}/{direction2}")
+    public List<DataQualityReport> getReportSortedByTwoFields(@PathVariable String field1,@PathVariable String direction1,
+                                                              @PathVariable String field2,@PathVariable String direction2)
+    {
+        return dataQualityService.getReportsSortedByTwoFields(field1,direction1,field2,direction2);
+    }
+
+    @GetMapping("/reports/page/{page}/{size}/{field1}/{direction1}/{field2}/{direction2}")
+    public Page<DataQualityReport> getReportsByPageAndTwoFieldSort(@PathVariable int page,@PathVariable int size,
+                                                                   @PathVariable String field1,@PathVariable String direction1,
+                                                                   @PathVariable String field2,@PathVariable String direction2)
+    {
+        return dataQualityService.getReportsByPageAndTwoFieldSort(page, size, field1, direction1, field2, direction2);
+    }
+
 }
 
