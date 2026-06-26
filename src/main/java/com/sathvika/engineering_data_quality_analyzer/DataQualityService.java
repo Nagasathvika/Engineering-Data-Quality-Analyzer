@@ -1,5 +1,6 @@
 package com.sathvika.engineering_data_quality_analyzer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -366,6 +367,22 @@ public class DataQualityService {
             sort2=Sort.by(field2).ascending();
         }
         return repository.findAll(PageRequest.of(page,size,sort1.and(sort2)));
+
+    }
+    public Page<DataQualityReport> getReportsByGradeWithPaginationAndSorting(String grade,int page,int size, String field,String direction)
+    {
+        Sort sort;
+        if(direction.equalsIgnoreCase("desc"))
+        {
+            sort=Sort.by(field).descending();
+        }
+        else
+        {
+            sort=Sort.by(field).ascending();
+        }
+        Pageable pageable=PageRequest.of(page,size,sort);
+
+        return repository.findByGrade(grade,pageable);
 
     }
 

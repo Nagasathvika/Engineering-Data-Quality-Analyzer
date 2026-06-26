@@ -183,5 +183,15 @@ public class DataQualityController {
         return dataQualityService.getReportsByPageAndTwoFieldSort(page, size, field1, direction1, field2, direction2);
     }
 
+    @GetMapping("/reports/search/{grade}/page/{page}/{size}/{field}/{direction}")
+    public Page<DataQualityReport> getReportsByGradeWithPaginationAndSorting(
+            @PathVariable String grade,@PathVariable int page,@PathVariable int size,
+            @PathVariable String field,@PathVariable String direction)
+    {
+        return dataQualityService.getReportsByGradeWithPaginationAndSorting(grade,page,size,field,direction);
+    }
+
+
+
 }
 
