@@ -1,6 +1,8 @@
 package com.sathvika.engineering_data_quality_analyzer;
 import jakarta.persistence.*;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Entity
 @Table(name="data_quality_report")
 public class DataQualityReport {
@@ -9,11 +11,38 @@ public class DataQualityReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /*  @Parameter → Documents method parameters (@PathVariable, @RequestParam)
+       @Schema → Documents class fields (model/DTO/entity) */
+
+    @Schema(
+            description = "Status of the quality analysis",
+            example = "SUCCESS"
+           )
     private String status;
+
+    @Schema(
+            description = "Detailed analysis result",
+            example ="Data Quality Analysis completed successfully"
+          )
     private String message;
+
+    @Schema(
+            description = "Overall quality score",
+            example = "92.5"
+           )
     private Double qualityScore;
+
+    @Schema(
+            description = "Overall quality grade",
+            example = "EXCELLENT"
+          )
     private String grade;
     private Double completeness;
+
+    @Schema(
+            description = "Recommendation generated after analysis",
+            example = "Data quality is EXCELLENT"
+           )
     private String recommendation;
     private Double uniqueness;
     private Double consistency;

@@ -3,6 +3,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,8 +12,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.crypto.Data;
+
 @Service
 public class DataQualityService {
+
+    //for logging
+    private static final Logger log=LoggerFactory.getLogger(DataQualityService.class);
 
     private final DataQualityReportRepository repository;
 
@@ -24,9 +33,25 @@ public class DataQualityService {
     }
     public DataQualityReport analyzeData(EngineeringData engineeringData)
     {
+        //logging
+        log.info("Starting Data Quality Analysis");
+
+        //log.info("Processing file: {}",engineeringData.getFileName());
+        //multiple placeholders({})
+        log.info(
+                "File {} has {} rows and {} columns",
+                engineeringData.getFileName(),
+                engineeringData.getTotalRows(),
+                engineeringData.getDuplicateRows()
+        );
+
+
         String validationResult= validate(engineeringData);
         if(!validationResult.equals("VALID"))
         {
+            //logging
+            log.warn("Validation failed: {}",validationResult);
+
             DataQualityReport report= new DataQualityReport(
 
                     "FAILED",
@@ -40,9 +65,13 @@ public class DataQualityService {
                     "N/A"
             );
             repository.save(report);
+
+            log.info("Validation failed report saved to database.");
+
             return report;
         }
         double score=calculateQualityScore(engineeringData);
+        log.info("Calculated Quality Score: {}",score);
 
         double completeness=calculateCompleteness(engineeringData);
 
@@ -68,7 +97,10 @@ public class DataQualityService {
                 consistency,
                 analysisTime
         );
+        log.info("Saving report to database.");
         repository.save(report);
+        log.info("Report saved to database");
+
         return report;
 
     }
@@ -265,7 +297,7 @@ public class DataQualityService {
     //here Page is an interface
     public Page<DataQualityReport>  getReportsByPage(int page,int size)
     {
-        //offset in sql=page*size that is how many rows to skip
+        //offset in sql= page*size that is how many rows to skip
         //limit=size
         return repository.findAll(PageRequest.of(page,size));
     }
@@ -383,7 +415,51 @@ public class DataQualityService {
         Pageable pageable=PageRequest.of(page,size,sort);
 
         return repository.findByGrade(grade,pageable);
+    }
+    public DataQualityReportDTO getReportDTOById(Long id)
+    {
+        DataQualityReport report=repository.findById(id).orElseThrow(()->
+                                                         new ReportNotFoundException("No report found with id"+ id));
 
+        /*DataQualityReportDTO dto=new DataQualityReportDTO();
+        dto.setStatus(report.getStatus());
+        dto.setMessage(report.getMessage());
+        dto.setQualityScore(report.getQualityScore());
+        dto.setGrade(report.getGrade());
+        dto.setRecommendation(report.getRecommendation());
+
+        return dto;*/
+
+
+        return new DataQualityReportDTO(report);
+    }
+
+    public List<DataQualityReportDTO> getAllReportsDTOs()
+    {
+        List<DataQualityReport> reports=repository.findAll();
+        List<DataQualityReportDTO> dtoList=new ArrayList<>();
+        for(int i=0;i< reports.size();i++)
+        {
+            DataQualityReport report= reports.get(i);
+            /* why new keyword used?
+            Because DataQualityReportDTO is a class, not a method.
+            To create an object, Java requires the new keyword.
+
+            new DataQualityReportDTO-->it creates an Entity, not a DTO.
+
+             */
+            dtoList.add(new DataQualityReportDTO(report));
+
+            // DataQualityReportDTO dto=new DataQualityReportDTO(report);
+
+            //System.out.println(dto);
+            //System.out.println(dto.getMessage());
+
+            //dtoList.add(dto);
+
+        }
+
+        return dtoList;
     }
 
 

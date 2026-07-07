@@ -11,6 +11,8 @@ public interface DataQualityReportRepository extends JpaRepository<DataQualityRe
 {
     List<DataQualityReport> findByGrade(String grade);
 
+    
+
     List<DataQualityReport> findByStatus(String status);
 
     List<DataQualityReport> findByGradeAndStatus(String grade,String status);
