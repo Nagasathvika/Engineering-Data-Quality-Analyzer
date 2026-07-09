@@ -50,5 +50,15 @@ public class GlobalExceptionHandler {
     }
     */
 
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleRuntimeException(RuntimeException ex)
+    {
+        return new ErrorResponse(java.time.LocalDateTime.now().toString(),
+                                 HttpStatus.BAD_REQUEST.value(),
+                                 ex.getMessage());
+
+    }
+
 
 }

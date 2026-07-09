@@ -33,6 +33,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.MediaType;
 
+import java.util.ArrayList;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 
 /*  @Parameter → Documents method parameters (@PathVariable, @RequestParam)
@@ -45,6 +51,8 @@ import org.springframework.http.MediaType;
 )
 @RestController
 public class DataQualityController {
+
+    private static final Logger log=LoggerFactory.getLogger(DataQualityController.class);
 
     @Autowired
     private DataQualityService dataQualityService;
@@ -391,23 +399,84 @@ public class DataQualityController {
     */
     //using file reader
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String uploadFile(@RequestParam("file") MultipartFile file) throws Exception
+    public List<DataQualityReport>/*String*/ uploadFile(@RequestParam("file") MultipartFile file) throws Exception
     {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
-        CSVParser parser = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build().parse(reader);
+        log.info("CSV upload started;");
 
-        for (CSVRecord record : parser)
+        log.info("Uploaded file size: {} bytes",file.getSize());
+
+        if(file.isEmpty())
         {
-            EngineeringData engineeringData=new EngineeringData();
-            engineeringData.setFileName(record.get("filename"));
-            engineeringData.setTotalRows(Integer.parseInt(record.get("totalRows")));
-            engineeringData.setNullValues(Integer.parseInt(record.get("nullValues")));
-            engineeringData.setDuplicateRows(Integer.parseInt(record.get("duplicateRows")));
-
-            //System.out.println(record);
-            System.out.println(engineeringData);
+            log.warn("Uploaded file is empty");
+            throw new RuntimeException("CSV file is empty");
         }
-        return "CSV Read Successfully";
+        //BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+        //CSVParser parser = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build().parse(reader);
+        /*
+        A try-with-resources statement works with objects that implement the AutoCloseable interface.
+        The Java compiler automatically generates code that calls the close() method in a hidden finally block.
+        This ensures that resources are closed whether the code completes normally or an exception occurs.
+        try
+        {
+        // your code
+        }
+        finally
+        {
+            if(reader != null)
+            {
+                reader.close() or parser.close();
+            }
+         }
+         You don't see this.
+         The compiler generates it automatically.*/
+
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+            CSVParser parser = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build().parse(reader))
+        {
+            List<DataQualityReport> reports=new ArrayList<>();
+            for (CSVRecord record : parser)
+            {
+                log.info("Processing record {}",record.getRecordNumber());
+                try
+                {
+                    EngineeringData engineeringData=new EngineeringData();
+                    engineeringData.setFileName(record.get("fileName"));
+                    engineeringData.setTotalRows(Integer.parseInt(record.get("totalRows")));
+                    engineeringData.setNullValues(Integer.parseInt(record.get("nullValues")));
+                    engineeringData.setDuplicateRows(Integer.parseInt(record.get("duplicateRows")));
+
+                    //System.out.println(record);
+                    // System.out.println(engineeringData);
+                    DataQualityReport report=dataQualityService.analyzeData(engineeringData);
+
+                    reports.add(report);
+                }
+                catch (NumberFormatException e)
+                {
+                    log.error("Invalid number in CSV at record {}",record.getRecordNumber());
+                    throw new RuntimeException("Invalid numeric value at record"+record.getRecordNumber());
+                }
+                catch (IllegalArgumentException e)
+                {
+                    log.error("Invalid CSV header."+ e);
+                    throw new RuntimeException("Invalid CSV header. Expected: fileName,totalRows,nullValues,duplicateRows ",e);
+                }
+            }
+            if(reports.isEmpty())
+            {
+                log.warn("CSV contains no records.");
+                throw new RuntimeException("CSV contains no records.");
+            }
+
+            //return "CSV Read Successfully";
+            log.info("CSV upload completed. {} reports generated.",reports.size());
+            return reports;
+            /* Why didn't file.isEmpty() work?
+
+            "file.isEmpty()" checks whether the uploaded file has zero bytes.
+            My test file contained 2 bytes because it had a newline character, so it wasn't considered empty */
+        }
+
     }
 
     /* file.getInputStream():        ->The uploaded file is stored in memory.
@@ -429,11 +498,12 @@ public class DataQualityController {
                                       Read Row 3
                                       One by one.
 
+
+
       System.out.println(record);     For now, we're simply printing each row.
                                        Expected console output:
                                        CSVRecord [comment='null', recordNumber=1, values=[EngineData.csv, 100, 10, 5]]
 
 */
-
 }
 
