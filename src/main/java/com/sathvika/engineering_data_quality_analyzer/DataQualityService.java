@@ -107,7 +107,7 @@ public class DataQualityService {
 
     public String validate(EngineeringData engineeringData)
     {
-        /*
+
         if(engineeringData.getFileName()==null || engineeringData.getFileName().isBlank())
         {
             return "Invalid File:fileName cannot be empty";
@@ -125,7 +125,7 @@ public class DataQualityService {
         {
             return "Invalid File: duplicateRows cannot be negative";
         }
-        */
+
         if(engineeringData.getNullValues()> engineeringData.getTotalRows())
         {
             return "Invalid File: nullValues cannot exceed totalRows";
@@ -461,47 +461,4 @@ public class DataQualityService {
 
         return dtoList;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
